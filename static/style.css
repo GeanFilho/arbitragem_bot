@@ -1,0 +1,53 @@
+body {
+    background: #0f0f0f;
+    color: #eee;
+    font-family: Arial;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.msg {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.btn {
+    background: #444;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.card {
+    background: #1b1b1b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 10px #000;
+}
+
+.stake {
+    background: #2a2a2a;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.lucro {
+    color: #0f0;
+    font-weight: bold;
+}

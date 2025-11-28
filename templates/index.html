@@ -1,60 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Scanner de Arbitragem</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f3f3f3;
-        padding: 20px;
-    }
-    h1 {
-        color: #222;
-    }
-    .card {
-        background: #fff;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .stake {
-        background: #eee;
-        padding: 8px;
-        border-radius: 5px;
-        margin-top: 5px;
-    }
-</style>
-</head>
-<body>
-
-<h1>📊 Scanner de Arbitragem</h1>
+{% extends "layout.html" %}
+{% block content %}
 
 {% if surebets|length == 0 %}
-    <p>Nenhuma arbitragem encontrada nesta varredura.</p>
+<p class="msg">Nenhuma arbitragem encontrada.</p>
+
 {% else %}
-    <p>Foram encontradas {{ surebets|length }} arbitragem(s):</p>
+<p class="msg">{{ surebets|length }} arbitragem(s) encontradas.</p>
 
-    {% for sb in surebets %}
-    <div class="card">
-        <h3>{{ sb.home }} x {{ sb.away }}</h3>
-        <p><strong>Liga:</strong> {{ sb.league }}</p>
-        <p><strong>Margem de lucro:</strong> {{ sb.margin }}%</p>
+{% for sb in surebets %}
+<div class="card">
+    <h2>{{ sb.home }} x {{ sb.away }}</h2>
+    <p class="liga">{{ sb.league }}</p>
 
-        <h4>Apostas sugeridas:</h4>
+    <p><strong>Margem:</strong> {{ sb.margin }}%</p>
+    <p><strong>Investido:</strong> R$ {{ sb.investido }}</p>
+    <p><strong>Retorno garantido:</strong> R$ {{ sb.retorno }}</p>
+    <p><strong>Lucro líquido:</strong> <span class="lucro">R$ {{ sb.lucro }}</span></p>
 
-        {% for s in sb.stakes %}
-        <div class="stake">
-            → Apostar <strong>R$ {{ s.stake }}</strong> em <strong>{{ s.name }}</strong><br>
-            Casa: {{ s.bookmaker }}<br>
-            Odd: {{ s.odd }}<br>
-            Retorno: R$ {{ s.return_if_win }}
-        </div>
-        {% endfor %}
+    <h3>Apostas sugeridas:</h3>
+
+    {% for s in sb.stakes %}
+    <div class="stake">
+        <p>→ R$ {{ s.stake }} em <strong>{{ s.name }}</strong></p>
+        <p>Casa: {{ s.bookmaker }} — Odd: {{ s.odd }}</p>
+        <p>Retorno se ganhar: {{ s.return_if_win }}</p>
     </div>
     {% endfor %}
+</div>
+{% endfor %}
 {% endif %}
 
-</body>
-</html>
+{% endblock %}
