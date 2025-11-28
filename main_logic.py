@@ -6,7 +6,7 @@ from typing import List, Dict
 
 from arbitrage.calculator import check_surebet, calculate_stakes
 from utils import calcular_lucro
-from config import BANKROLL, MIN_MARGIN
+from config import BANKROLL
 from odds_providers.api_football import get_matches_with_odds
 
 
@@ -19,15 +19,19 @@ def salvar_log(resultados: List[Dict]) -> None:
         json.dump(resultados, f, indent=2, ensure_ascii=False)
 
 
+def calcular_s_margem(outcomes):
+    """Calcula soma S e margem da casa."""
+    inv_probs = [1 / o["odd"] for o in outcomes]
+    S = sum(inv_probs)
+    margem = (S - 1) * 100
+    return S, margem
+
+
 def buscar_arbitragem() -> List[Dict]:
     """
-    Scanner global usando API-Football, em múltiplos mercados:
-    - 1x2
-    - Over/Under
-    - Handicap
-    - BTTS
-    - Double Chance
-    - Draw No Bet
+    Agora retorna SEMPRE os 20 mercados mais favoráveis
+    - Com arbitragem real (S < 1)
+    - Ou quase arbitragem (S > 1 mas perto)
     """
 
     matches = get_matches_with_odds()
@@ -38,8 +42,8 @@ def buscar_arbitragem() -> List[Dict]:
         if len(outcomes) < 2:
             continue
 
-        # pegar a melhor odd por nome de resultado (Home / Away / Over 2.5 / etc.)
-        best: Dict[str, Dict] = {}
+        # Pega a melhor odd de cada resultado (melhor por nome)
+        best = {}
         for o in outcomes:
             name = o["name"]
             if name not in best or o["odd"] > best[name]["odd"]:
@@ -49,33 +53,42 @@ def buscar_arbitragem() -> List[Dict]:
         if len(best_list) < 2:
             continue
 
-        has_surebet, margin = check_surebet(best_list)
+        # calcular arbitragem e variáveis do mercado
+        has_surebet, margin_sure = check_surebet(best_list)
 
-        if not has_surebet or margin < MIN_MARGIN:
-            continue
+        S, margem_casa = calcular_s_margem(best_list)
+        falta = S - 1  # quanto falta pra virar arbitragem
 
-        stakes = calculate_stakes(best_list, BANKROLL)
-        if not stakes:
-            continue
+        stakes = calculate_stakes(best_list, BANKROLL) if has_surebet else []
 
-        investido, retorno, lucro = calcular_lucro(stakes)
+        investido = retorno = lucro = 0
+        if stakes:
+            investido, retorno, lucro = calcular_lucro(stakes)
 
         resultados.append({
             "league": match["league"],
             "home": match["home"],
             "away": match["away"],
-            "market": match.get("market", "desconhecido"),
-            "margin": round(margin, 2),
+            "market": match["market"],
+
+            "S": round(S, 4),
+            "margem_casa": round(margem_casa, 2),
+            "falta": round(falta, 4),
+
+            "has_surebet": has_surebet,
+            "margin_sure": round(margin_sure, 2),
+
+            "stakes": stakes,
             "investido": investido,
             "retorno": retorno,
             "lucro": lucro,
-            "stakes": stakes,
         })
 
-    # ordena pelo lucro líquido
-    resultados.sort(key=lambda x: x["lucro"], reverse=True)
+    # ordenar pelas melhores oportunidades
+    resultados.sort(key=lambda x: x["S"])
 
-    # salva log
-    salvar_log(resultados)
+    # top 20
+    top = resultados[:20]
 
-    return resultados
+    salvar_log(top)
+    return top

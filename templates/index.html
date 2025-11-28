@@ -5,27 +5,40 @@
 <p class="msg">Nenhuma arbitragem encontrada.</p>
 
 {% else %}
-<p class="msg">{{ surebets|length }} arbitragem(s) encontradas.</p>
+<p class="msg">{{ surebets|length }} oportunidade(s) encontradas.</p>
 
 {% for sb in surebets %}
 <div class="card">
-    <h2>{{ sb.home }} x {{ sb.away }}</h2>
-    <p class="liga">{{ sb.league }}</p>
 
-    <p><strong>Margem:</strong> {{ sb.margin }}%</p>
-    <p><strong>Investido:</strong> R$ {{ sb.investido }}</p>
-    <p><strong>Retorno garantido:</strong> R$ {{ sb.retorno }}</p>
-    <p><strong>Lucro líquido:</strong> <span class="lucro">R$ {{ sb.lucro }}</span></p>
+    <h3>{{ sb.league }}</h3>
+    <p><b>{{ sb.home }}</b> vs <b>{{ sb.away }}</b></p>
 
-    <h3>Apostas sugeridas:</h3>
+    <p><b>Mercado:</b> {{ sb.market }}</p>
+    <p><b>S (soma das odds):</b> {{ sb.S }}</p>
+    <p><b>Margem da casa:</b> {{ sb.margem_casa }}%</p>
+    <p><b>Falta para arbitragem:</b> {{ sb.falta }}</p>
 
-    {% for s in sb.stakes %}
-    <div class="stake">
-        <p>→ R$ {{ s.stake }} em <strong>{{ s.name }}</strong></p>
-        <p>Casa: {{ s.bookmaker }} — Odd: {{ s.odd }}</p>
-        <p>Retorno se ganhar: {{ s.return_if_win }}</p>
-    </div>
-    {% endfor %}
+    {% if sb.has_surebet %}
+        <p style="color: green;"><b>ARBITRAGEM ENCONTRADA!</b></p>
+        <p><b>Lucro líquido:</b> R$ {{ sb.lucro }}</p>
+
+        <h4>Stakes ideais:</h4>
+        <ul>
+        {% for st in sb.stakes %}
+            <li>
+                Resultado: <b>{{ st.name }}</b> —
+                Odd: {{ st.odd }} —
+                Casa: {{ st.bookmaker }} —
+                Aposta: <b>R$ {{ st.stake }}</b> —
+                Retorno: R$ {{ st.return_if_win }}
+            </li>
+        {% endfor %}
+        </ul>
+
+    {% else %}
+        <p style="color: #c44;"><b>Sem arbitragem</b></p>
+    {% endif %}
+
 </div>
 {% endfor %}
 {% endif %}
