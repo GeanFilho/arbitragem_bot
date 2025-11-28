@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Scanner de Arbitragem</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f3f3f3;
+        padding: 20px;
+    }
+    h1 {
+        color: #222;
+    }
+    .card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .stake {
+        background: #eee;
+        padding: 8px;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h1>📊 Scanner de Arbitragem</h1>
+
+{% if surebets|length == 0 %}
+    <p>Nenhuma arbitragem encontrada nesta varredura.</p>
+{% else %}
+    <p>Foram encontradas {{ surebets|length }} arbitragem(s):</p>
+
+    {% for sb in surebets %}
+    <div class="card">
+        <h3>{{ sb.home }} x {{ sb.away }}</h3>
+        <p><strong>Liga:</strong> {{ sb.league }}</p>
+        <p><strong>Margem de lucro:</strong> {{ sb.margin }}%</p>
+
+        <h4>Apostas sugeridas:</h4>
+
+        {% for s in sb.stakes %}
+        <div class="stake">
+            → Apostar <strong>R$ {{ s.stake }}</strong> em <strong>{{ s.name }}</strong><br>
+            Casa: {{ s.bookmaker }}<br>
+            Odd: {{ s.odd }}<br>
+            Retorno: R$ {{ s.return_if_win }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>
